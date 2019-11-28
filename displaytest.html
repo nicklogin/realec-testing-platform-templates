@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+    <head>
+        <link href="{% static "basic.css" %}" rel="stylesheet" />
+    </head>
+    <body>
+        <div class = "main">
+            <div class="mainarea">
+                <div class="navbar">
+                    <ul>
+                        <li><a href="/quizzes">Quizzes</a></li>
+                        <li><a href="/grades">Grades</a></li>
+                        <li><a href="/questions">Questions</a></li>
+                        <li><a href="/users">Users</a></li>
+                        <li><a href="/IELTS">IELTS</a></li>
+                        <li><a href="/login">Log Out</a></li>
+                    </ul>
+                </div>
+                <div>
+                    {% autoescape off %}
+                        <form method="POST">
+                        {% csrf_token %}
+                        {% for test_section in task_set %}
+                        <div class="section">
+                            <!-- Name of the section: -->
+                            <h1>{{ test_section.name }}</h1>
+                            {% if test_section.supplement.url is not None %}
+                            <div class="equalCols">
+                                <div class="section-text">
+                                    <!-- Text of the section -->
+                                    {{ test_section.text }}
+                                </div>
+                                <div>
+                                    <!-- Supplement for the section -->
+                                    {% if test_section.section_type == "r" %}
+                                        <embed src="{{ test_section.supplement.url }}" type="application/pdf" style="height: 640px; width: 100%;">
+                                        </embed>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <br />
+                            <div style="max-height:300px; overflow: scroll;">
+                                <b>Answer sheet:</b><br />
+                                {% for question in test_section.question_set.all %}
+                                    <div>
+                                    <b>{{ question.question_text }}</b>
+                                    <textarea name="question_{{ question.id }}" cols="50" row="1"></textarea>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="equalCols">
+                                <div class="section-text">
+                                    <!-- Text of the section -->
+                                    {{ test_section.text }}
+                                </div>
+                                <div style="height: 640px; overflow: scroll;">
+                                    <b>Answer sheet: </b><br />
+                                    {% for question in test_section.question_set.all %}
+                                        <div>
+                                        <b>{{ question.question_text }}</b>
+                                        <textarea name="question_{{ question.id }}" cols="50" row="1"></textarea>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <br />
+                        <br />
+                        {% endfor %}
+                        <button> Submit </button>
+                        </form>
+                    {% endautoescape %}
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
